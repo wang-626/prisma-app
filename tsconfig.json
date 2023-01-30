@@ -4,6 +4,6 @@
     "outDir": "dist",
     "strict": true,
     "lib": ["esnext"],
-    "esModeleInterop": true
+    "esModuleInterop": true
   }
 }
