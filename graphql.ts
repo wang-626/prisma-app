@@ -27,6 +27,12 @@ const RootQueryType = new GraphQLObjectType({
         return findUser();
       },
     },
+    users: {
+      type: new GraphQLList(UserType),
+      resolve() {
+        return findAllUser();
+      },
+    },
   },
 });
 
