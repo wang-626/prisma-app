@@ -6,23 +6,30 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from "graphql";
+import { findUser, findAllUser } from "./prisma";
 
-const test = new GraphQLObjectType({
-  name: "helloType",
-  description: "first",
+const UserType = new GraphQLObjectType({
+  name: "User",
+  description: "return user email name",
+  fields: () => ({
+    name: { type: GraphQLNonNull(GraphQLString) },
+    email: { type: GraphQLNonNull(GraphQLString) },
+  }),
+});
+
+const RootQueryType = new GraphQLObjectType({
+  name: "query",
+  description: "Root query",
   fields: {
-    name: {
-      type: GraphQLString,
-      args: {
-        name: { type: GraphQLString },
-      },
-      resolve(parent, args) {
-        return "hello" + args.name;
+    user: {
+      type: UserType,
+      resolve() {
+        return findUser();
       },
     },
   },
 });
 
 export var schema = new GraphQLSchema({
-  query: test,
+  query: RootQueryType,
 });
