@@ -1,14 +1,36 @@
 import { PrismaClient } from "@prisma/client";
-export const prisma = new PrismaClient();
+import { encryption } from "./crypto";
+const prisma = new PrismaClient();
 
-export async function findUser() {
-  const user = await prisma.user.findUnique({
+export async function createUser(
+  name: string,
+  email: string,
+  password: string,
+  age: number | null = null
+) {
+  const user = await prisma.user.create({
+    data: {
+      name: name,
+      email: email,
+      age: age,
+      password: encryption(password),
+    },
+  });
+  console.log(user);
+
+  return user;
+}
+
+export async function findUser(email: string, password: string) {
+  const user = await prisma.user.findFirst({
     where: {
-      id: "ae14c8e8-3bcd-4735-a058-06ae991d81f3",
+      email: email,
+      password: encryption(password),
     },
     select: {
       name: true,
       email: true,
+      age:true
     },
   });
   console.log(user);
@@ -27,7 +49,7 @@ export async function findAllUser() {
 }
 
 // 測試使用
-// findUser()
+// createUser()
 //   .then(async () => {
 //     await prisma.$disconnect();
 //   })

@@ -6,7 +6,7 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from "graphql";
-import { findUser, findAllUser } from "./prisma";
+import { findUser, findAllUser, createUser } from "./prisma";
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -14,6 +14,7 @@ const UserType = new GraphQLObjectType({
   fields: () => ({
     name: { type: GraphQLNonNull(GraphQLString) },
     email: { type: GraphQLNonNull(GraphQLString) },
+    age: { type: GraphQLString },
   }),
 });
 
@@ -23,8 +24,13 @@ const RootQueryType = new GraphQLObjectType({
   fields: {
     user: {
       type: UserType,
-      resolve() {
-        return findUser();
+      args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        console.log(args);
+        return findUser(args.email, args.password);
       },
     },
     users: {
@@ -36,6 +42,26 @@ const RootQueryType = new GraphQLObjectType({
   },
 });
 
+const RootMutationType = new GraphQLObjectType({
+  name: "mutation",
+  description: "root mutation",
+  fields: {
+    createUser: {
+      type: UserType,
+      args: {
+        name: { type: GraphQLString },
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+        age: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        return createUser(args.name, args.email, args.password, args.age);
+      },
+    },
+  },
+});
+
 export var schema = new GraphQLSchema({
   query: RootQueryType,
+  mutation: RootMutationType,
 });
