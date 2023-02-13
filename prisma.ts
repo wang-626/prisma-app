@@ -30,12 +30,37 @@ export async function findUser(email: string, password: string) {
     select: {
       name: true,
       email: true,
-      age:true
+      age: true,
     },
   });
   console.log(user);
 
   return user;
+}
+
+export async function updateUser(email: string) {
+  const deleteUser = await prisma.user.update({
+    where: {
+      email: email,
+    },
+    data: {
+      name: "Viola the Magnificent",
+    },
+  });
+  console.log(deleteUser);
+
+  return deleteUser;
+}
+
+export async function deleteUser(email: string) {
+  const deleteUser = await prisma.user.delete({
+    where: {
+      email: email,
+    },
+  });
+  console.log(deleteUser);
+
+  return deleteUser;
 }
 
 export async function findAllUser() {
@@ -49,7 +74,7 @@ export async function findAllUser() {
 }
 
 // 測試使用
-// createUser()
+// findUser()
 //   .then(async () => {
 //     await prisma.$disconnect();
 //   })
