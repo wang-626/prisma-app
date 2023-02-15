@@ -16,7 +16,6 @@ export async function createUser(
       password: encryption(password),
     },
   });
-  console.log(user);
 
   return user;
 }
@@ -28,18 +27,18 @@ export async function findUser(email: string, password: string) {
       password: encryption(password),
     },
     select: {
+      id: true,
       name: true,
       email: true,
       age: true,
     },
   });
-  console.log(user);
 
   return user;
 }
 
 export async function updateUser(email: string) {
-  const deleteUser = await prisma.user.update({
+  const updateUser = await prisma.user.update({
     where: {
       email: email,
     },
@@ -47,9 +46,8 @@ export async function updateUser(email: string) {
       name: "Viola the Magnificent",
     },
   });
-  console.log(deleteUser);
 
-  return deleteUser;
+  return updateUser;
 }
 
 export async function deleteUser(email: string) {
@@ -58,7 +56,6 @@ export async function deleteUser(email: string) {
       email: email,
     },
   });
-  console.log(deleteUser);
 
   return deleteUser;
 }

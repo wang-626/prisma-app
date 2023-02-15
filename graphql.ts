@@ -12,6 +12,7 @@ const UserType = new GraphQLObjectType({
   name: "User",
   description: "return user email name",
   fields: () => ({
+    id: { type: GraphQLString },
     name: { type: GraphQLNonNull(GraphQLString) },
     email: { type: GraphQLNonNull(GraphQLString) },
     age: { type: GraphQLString },
@@ -65,6 +66,16 @@ const RootMutationType = new GraphQLObjectType({
       },
       resolve(parent, args) {
         return deleteUser(args.email);
+      },
+    },
+    userLogin: {
+      type: UserType,
+      args: {
+        email: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        return findUser(args.email, args.password);
       },
     },
   },
