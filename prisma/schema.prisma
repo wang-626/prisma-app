@@ -11,11 +11,12 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  age      Int?
-  name     String
-  email    String @unique
-  password String
+  id           String @id @default(uuid())
+  age          Int?
+  name         String
+  email        String @unique
+  password     String?
+  github_oauth String?
 
   @@index([id])
 }
