@@ -6,7 +6,7 @@ import {
   GraphQLInt,
   GraphQLNonNull,
 } from "graphql";
-import { findUser, findAllUser, createUser, deleteUser } from "./prisma";
+import { findUser, findAllUser, createUserByEmail, deleteUser } from "./prisma";
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -30,7 +30,6 @@ const RootQueryType = new GraphQLObjectType({
         password: { type: GraphQLString },
       },
       resolve(parent, args) {
-        console.log(args);
         return findUser(args.email, args.password);
       },
     },
@@ -47,16 +46,29 @@ const RootMutationType = new GraphQLObjectType({
   name: "mutation",
   description: "root mutation",
   fields: {
-    createUser: {
+    createUserByEmail: {
       type: UserType,
       args: {
-        name: { type: GraphQLString },
-        email: { type: GraphQLString },
-        password: { type: GraphQLString },
+        name: { type: GraphQLNonNull(GraphQLString) },
+        email: { type: GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLNonNull(GraphQLString) },
         age: { type: GraphQLString },
       },
       resolve(parent, args) {
-        return createUser(args.name, args.email, args.password, args.age);
+        let result = createUserByEmail({
+          name: args.name,
+          email: args.email,
+          password: args.password,
+          age: args.age,
+        })
+          .then((res) => {
+            return res;
+          })
+          .catch((err) => {
+            return err;
+          });
+
+        return result;
       },
     },
     deleteUser: {

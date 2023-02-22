@@ -2,22 +2,30 @@ import { PrismaClient } from "@prisma/client";
 import { encryption } from "./crypto";
 const prisma = new PrismaClient();
 
-export async function createUser(
-  name: string,
-  email: string,
-  password: string,
-  age: number | null = null
-) {
-  const user = await prisma.user.create({
-    data: {
-      name: name,
-      email: email,
-      age: age,
-      password: encryption(password),
-    },
-  });
-
-  return user;
+export async function createUserByEmail({
+  name,
+  email,
+  password,
+  age = null,
+}: {
+  name: string;
+  email: string;
+  password: string;
+  age: number | null;
+}) {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        age: age,
+        password: encryption(password),
+      },
+    });
+    return user;
+  } catch (err) {
+    return {id:null};
+  }
 }
 
 export async function findUser(email: string, password: string) {
