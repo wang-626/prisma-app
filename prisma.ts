@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { encryption } from "./crypto";
+import { encryption } from "./lib/crypto";
 const prisma = new PrismaClient();
 
 export async function createUserByEmail({
@@ -24,7 +24,7 @@ export async function createUserByEmail({
     });
     return user;
   } catch (err) {
-    return {id:null};
+    return { id: null };
   }
 }
 
@@ -78,12 +78,54 @@ export async function findAllUser() {
   return users;
 }
 
-// 測試使用
-// findUser()
-//   .then(async () => {
-//     await prisma.$disconnect();
-//   })
-//   .catch(async (e: any) => {
-//     console.error(e);
-//     await prisma.$disconnect();
-//   });
+export async function createLoginToken({
+  device,
+  userId,
+}: {
+  device: string;
+  userId: string;
+}) {
+  try {
+    const loginToken = await prisma.loginToken.create({
+      data: {
+        device: device,
+        userId: userId,
+      },
+    });
+    return loginToken;
+  } catch (err) {
+    return { id: null };
+  }
+}
+
+export async function userLogin(email: string, password: string) {
+  try {
+    const findRes = await findUser(email, password);
+    if (findRes) {
+      const loginRes = await createLoginToken({
+        device: "test",
+        userId: findRes.id,
+      });
+      if (loginRes) {
+        return loginRes;
+      }
+    }
+  } catch {
+    return null;
+  }
+}
+
+export async function verifyLoginToken(token: string) {
+  console.log(123);
+  
+  const loginToken = await prisma.loginToken.findUnique({
+    where: {
+      id: token,
+    },
+  });
+  
+  if (loginToken) {
+    return true;
+  }
+  return false;
+}

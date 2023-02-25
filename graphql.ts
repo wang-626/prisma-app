@@ -3,10 +3,27 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLList,
-  GraphQLInt,
   GraphQLNonNull,
+  GraphQLBoolean,
 } from "graphql";
-import { findUser, findAllUser, createUserByEmail, deleteUser } from "./prisma";
+import {
+  findUser,
+  findAllUser,
+  createUserByEmail,
+  deleteUser,
+  userLogin,
+  verifyLoginToken,
+} from "./prisma";
+
+const LoginTokenType = new GraphQLObjectType({
+  name: "LoginToken",
+  description: "LoginToken",
+  fields: () => ({
+    id: { type: GraphQLString },
+    device: { type: GraphQLString },
+    userId: { type: GraphQLString },
+  }),
+});
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -81,13 +98,22 @@ const RootMutationType = new GraphQLObjectType({
       },
     },
     userLogin: {
-      type: UserType,
+      type: LoginTokenType,
       args: {
         email: { type: GraphQLNonNull(GraphQLString) },
         password: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve(parent, args) {
-        return findUser(args.email, args.password);
+        return userLogin(args.email, args.password);
+      },
+    },
+    verifyLoginToken: {
+      type: GraphQLBoolean,
+      args: {
+        loginToken: { type: GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parent, args) {
+        return verifyLoginToken(args.loginToken);
       },
     },
   },
