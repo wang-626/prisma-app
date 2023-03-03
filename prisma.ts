@@ -22,9 +22,55 @@ export async function createUserByEmail({
         password: encryption(password),
       },
     });
-    return user;
+    if (user) {
+      const loginRes = await createLoginToken({
+        device: "test",
+        userId: user.id,
+      });
+      if (loginRes) {
+        return loginRes;
+      } else {
+        return null;
+      }
+    }
   } catch (err) {
     return { id: null };
+  }
+}
+
+export async function createUserByGithub({
+  name,
+  email,
+  github_oauth,
+  age = null,
+}: {
+  name: string;
+  email: string;
+  github_oauth: string;
+  age: number | null;
+}) {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        github_oauth: github_oauth,
+        age: age,
+      },
+    });
+    if (user) {
+      const loginRes = await createLoginToken({
+        device: "test",
+        userId: user.id,
+      });
+      if (loginRes) {
+        return loginRes;
+      } else {
+        return null;
+      }
+    }
+  } catch {
+    return null;
   }
 }
 
@@ -78,13 +124,7 @@ export async function findAllUser() {
   return users;
 }
 
-export async function createLoginToken({
-  device,
-  userId,
-}: {
-  device: string;
-  userId: string;
-}) {
+export async function createLoginToken({ device, userId }: { device: string; userId: string }) {
   try {
     const loginToken = await prisma.loginToken.create({
       data: {
@@ -116,16 +156,24 @@ export async function userLogin(email: string, password: string) {
 }
 
 export async function verifyLoginToken(token: string) {
-  console.log(123);
-  
-  const loginToken = await prisma.loginToken.findUnique({
+  const user = await prisma.loginToken.findUnique({
     where: {
-      id: token,
+      token: token,
+    },
+    select: {
+      User: {
+        select: {
+          name: true,
+          email: true,
+          github_oauth: true,
+        },
+      },
     },
   });
   
-  if (loginToken) {
-    return true;
+
+  if (user) {
+    return user.User;
   }
-  return false;
+  return user;
 }
