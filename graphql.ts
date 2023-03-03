@@ -10,6 +10,7 @@ import {
   findUser,
   findAllUser,
   createUserByEmail,
+  createUserByGithub,
   deleteUser,
   userLogin,
   verifyLoginToken,
@@ -19,7 +20,7 @@ const LoginTokenType = new GraphQLObjectType({
   name: "LoginToken",
   description: "LoginToken",
   fields: () => ({
-    id: { type: GraphQLString },
+    token: { type: GraphQLString },
     device: { type: GraphQLString },
     userId: { type: GraphQLString },
   }),
@@ -32,6 +33,7 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     name: { type: GraphQLNonNull(GraphQLString) },
     email: { type: GraphQLNonNull(GraphQLString) },
+    github_oauth: { type: GraphQLString },
     age: { type: GraphQLString },
   }),
 });
@@ -63,8 +65,8 @@ const RootMutationType = new GraphQLObjectType({
   name: "mutation",
   description: "root mutation",
   fields: {
-    createUserByEmail: {
-      type: UserType,
+    registerUserByEmail: {
+      type: LoginTokenType,
       args: {
         name: { type: GraphQLNonNull(GraphQLString) },
         email: { type: GraphQLNonNull(GraphQLString) },
@@ -88,6 +90,7 @@ const RootMutationType = new GraphQLObjectType({
         return result;
       },
     },
+
     deleteUser: {
       type: UserType,
       args: {
@@ -97,6 +100,7 @@ const RootMutationType = new GraphQLObjectType({
         return deleteUser(args.email);
       },
     },
+
     userLogin: {
       type: LoginTokenType,
       args: {
@@ -107,13 +111,34 @@ const RootMutationType = new GraphQLObjectType({
         return userLogin(args.email, args.password);
       },
     },
+
     verifyLoginToken: {
-      type: GraphQLBoolean,
+      type: UserType,
       args: {
-        loginToken: { type: GraphQLNonNull(GraphQLString) },
+        token: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve(parent, args) {
-        return verifyLoginToken(args.loginToken);
+        return verifyLoginToken(args.token);
+      },
+    },
+
+    registerUserByGithub: {
+      type: LoginTokenType,
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        email: { type: GraphQLNonNull(GraphQLString) },
+        github_oauth: { type: GraphQLNonNull(GraphQLString) },
+        age: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        let result = createUserByGithub({
+          name: args.name,
+          email: args.email,
+          github_oauth: args.github_oauth,
+          age: args.age,
+        });
+
+        return result;
       },
     },
   },
