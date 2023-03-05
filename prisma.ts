@@ -91,6 +91,19 @@ export async function findUser(email: string, password: string) {
   return user;
 }
 
+export async function findUserById(id: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      id: id,
+    },
+    select: {
+      github_oauth: true,
+    },
+  });
+
+  return user;
+}
+
 export async function updateUser(email: string) {
   const updateUser = await prisma.user.update({
     where: {
@@ -163,14 +176,13 @@ export async function verifyLoginToken(token: string) {
     select: {
       User: {
         select: {
+          id: true,
           name: true,
           email: true,
-          github_oauth: true,
         },
       },
     },
   });
-  
 
   if (user) {
     return user.User;
