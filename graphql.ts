@@ -1,13 +1,7 @@
-import {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLBoolean,
-} from "graphql";
+import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLBoolean } from "graphql";
 import {
   findUser,
+  findUserById,
   findAllUser,
   createUserByEmail,
   createUserByGithub,
@@ -31,8 +25,8 @@ const UserType = new GraphQLObjectType({
   description: "return user email name",
   fields: () => ({
     id: { type: GraphQLString },
-    name: { type: GraphQLNonNull(GraphQLString) },
-    email: { type: GraphQLNonNull(GraphQLString) },
+    name: { type: GraphQLString },
+    email: { type: GraphQLString },
     github_oauth: { type: GraphQLString },
     age: { type: GraphQLString },
   }),
@@ -49,7 +43,16 @@ const RootQueryType = new GraphQLObjectType({
         password: { type: GraphQLString },
       },
       resolve(parent, args) {
-        return findUser(args.email, args.password);
+        return findUser({ email: args.email, password: args.password });
+      },
+    },
+    userById: {
+      type: UserType,
+      args: {
+        id: { type: GraphQLString },
+      },
+      resolve(parent, args) {
+        return findUserById(args.id);
       },
     },
     users: {
