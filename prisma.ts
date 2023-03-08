@@ -50,14 +50,26 @@ export async function createUserByGithub({
   age: number | null;
 }) {
   try {
-    const user = await prisma.user.create({
-      data: {
-        name: name,
-        email: email,
-        github_oauth: github_oauth,
-        age: age,
-      },
-    });
+    let user = await findUser({ email: email });
+    if (user) {
+      user = await prisma.user.update({
+        where: {
+          email: email,
+        },
+        data: {
+          github_oauth: github_oauth,
+        },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: {
+          name: name,
+          email: email,
+          github_oauth: github_oauth,
+          age: age,
+        },
+      });
+    }
     if (user) {
       const loginRes = await createLoginToken({
         device: "test",
@@ -74,21 +86,37 @@ export async function createUserByGithub({
   }
 }
 
-export async function findUser(email: string, password: string) {
-  const user = await prisma.user.findFirst({
-    where: {
-      email: email,
-      password: encryption(password),
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      age: true,
-    },
-  });
+export async function findUser({ email, password }: { email: string; password?: string }) {
+  if (password) {
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+        password: encryption(password),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+      },
+    });
 
-  return user;
+    return user;
+  } else {
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+      },
+    });
+
+    return user;
+  }
 }
 
 export async function findUserById(id: string) {
@@ -153,7 +181,7 @@ export async function createLoginToken({ device, userId }: { device: string; use
 
 export async function userLogin(email: string, password: string) {
   try {
-    const findRes = await findUser(email, password);
+    const findRes = await findUser({ email: email, password: password });
     if (findRes) {
       const loginRes = await createLoginToken({
         device: "test",
