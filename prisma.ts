@@ -33,8 +33,8 @@ export async function createUserByEmail({
         return null;
       }
     }
-  } catch (err) {
-    return { id: null };
+  } catch {
+    return null;
   }
 }
 
@@ -86,7 +86,7 @@ export async function createUserByGithub({
   }
 }
 
-export async function findUser({ email, password }: { email: string; password?: string }) {
+export async function findUser({ email, password, id }: { email: string; password?: string; id?: string }) {
   if (password) {
     const user = await prisma.user.findFirst({
       where: {
@@ -98,6 +98,21 @@ export async function findUser({ email, password }: { email: string; password?: 
         name: true,
         email: true,
         age: true,
+      },
+    });
+
+    return user;
+  } else if (id) {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        age: true,
+        github_oauth: true,
       },
     });
 
@@ -132,7 +147,7 @@ export async function findUserById(id: string) {
   return user;
 }
 
-export async function updateUser(email: string) {
+export async function updateUser({ email }: { email: string }) {
   const updateUser = await prisma.user.update({
     where: {
       email: email,
