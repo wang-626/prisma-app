@@ -41,9 +41,10 @@ const RootQueryType = new GraphQLObjectType({
       args: {
         email: { type: GraphQLString },
         password: { type: GraphQLString },
+        id: { type: GraphQLString },
       },
       resolve(parent, args) {
-        return findUser({ email: args.email, password: args.password });
+        return findUser({ email: args.email, password: args.password, id: args.id });
       },
     },
     userById: {
