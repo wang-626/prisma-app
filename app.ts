@@ -20,15 +20,7 @@ var corsOptionsDelegate = function (req: any, callback: any) {
 
 app.use(cors(corsOptionsDelegate));
 
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: schema,
-    graphiql: true,
-  })
-);
-
-const port: Number = 4000;
+const port: Number = 8080;
 app.listen(port, (): void => {
   console.log(`Example app listening on port ${port}`);
 });
