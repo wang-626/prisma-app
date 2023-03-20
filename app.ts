@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 var cors = require("cors");
 import { graphqlHTTP } from "express-graphql";
 import { schema } from "./graphql";
+import { findAllUser } from "./prisma";
 
 const app = express();
 app.use(express.json());
@@ -18,7 +19,24 @@ var corsOptionsDelegate = function (req: any, callback: any) {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
+app.get("/", async function (req, res) {
+  try {
+    const users = await findAllUser();
+    res.send(users);
+  } catch {
+    res.send("err");
+  }
+});
+
 app.use(cors(corsOptionsDelegate));
+
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: schema,
+    graphiql: true,
+  })
+);
 
 const port: Number = 8080;
 app.listen(port, (): void => {
